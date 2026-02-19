@@ -98,6 +98,13 @@ export default function Dashboard() {
     // Monthly revenue
     const totalRevenue = activeClients.reduce((sum, c) => sum + c.monthlyRate, 0)
 
+    // Previous month revenue (clients active before Feb 2025)
+    const prevMonthRevenue = activeClients
+      .filter(c => c.contractStart < '2025-02-01')
+      .reduce((sum, c) => sum + c.monthlyRate, 0)
+    const revenueChange = totalRevenue - prevMonthRevenue
+    const revenueChangePct = prevMonthRevenue > 0 ? ((revenueChange / prevMonthRevenue) * 100).toFixed(1) : 0
+
     // Revenue by tier
     const revenueByTier = Object.entries(tiers).map(([key, tier]) => {
       const tierClients = activeClients.filter(c => c.tier === key)
@@ -146,6 +153,8 @@ export default function Dashboard() {
       videoCount,
       creativeCount,
       totalRevenue,
+      revenueChange,
+      revenueChangePct,
       revenueByTier,
       shootActivity,
       upcomingShootsTable,
@@ -209,7 +218,9 @@ export default function Dashboard() {
             {formatWon(stats.totalRevenue)}
           </div>
           <div style={{ fontSize: '0.8rem', color: '#6a6a6a', marginTop: 4 }}>
-            All active retainers
+            {stats.revenueChange !== 0
+              ? `${stats.revenueChange > 0 ? '+' : ''}${formatWon(stats.revenueChange)} (${stats.revenueChange > 0 ? '+' : ''}${stats.revenueChangePct}%) MoM`
+              : 'No change from last month'}
           </div>
         </div>
       </div>
